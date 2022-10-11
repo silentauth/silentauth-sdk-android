@@ -61,7 +61,7 @@ publishing {
     }
     repositories {
         maven {
-            url "https://gitlab.com/api/v4/projects/project_id/packages/maven"
+            url "https://gitlab.com/api/v4/projects/40053021/packages/maven"
             //TODO: Project ID to be provided
             credentials(HttpHeaderCredentials) {
                 name = "Deploy-Token"
