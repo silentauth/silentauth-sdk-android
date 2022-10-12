@@ -41,8 +41,8 @@ Potential error codes: `sdk_no_data_connectivity`, `sdk_connection_error`, `sdk_
 Add our maven public repository to your IDE
 
 ```
-https://gitlab.com/api/v4/projects/{project_id}/packages/maven
-//TODO: Project ID to be provided.
+https://gitlab.com/api/v4/projects/40053021/packages/maven
+
 ```
 
 build.gradle -> dependencies add
