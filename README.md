@@ -107,7 +107,7 @@ val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellular(URL(endp
     }
 ```
 
-* How to open a check URL return by the [PhoneCheck API](https://developer.silentauth.com/docs/phone-check) or [SubscriberCheck API](https://developer.silentauth.com/docs/subscriber-check)
+* How to open a check URL 
 ```
     val resp: JSONObject? = SilentAuthSDK.getInstance().openWithDataCellular(URL(checkUrl), false)
     if (resp.optString("error") != "") {
