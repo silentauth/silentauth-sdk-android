@@ -69,7 +69,7 @@ build.gradle -> dependencies add
 ## Usage example
 
 
-```
+```kotlin
 import com.silentauth.sdk.SilentAuthSDK
 
 // instantiate the sdk during app startup
@@ -89,9 +89,11 @@ val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellular(URL(endp
 ```
 
 * Is the device eligible for silent authentication?
-```
+```kotlin
     SilentAuthSDK.initializeSdk(this.applicationContext)
-    val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellular(URL("https://eu.api.silentauth.com/public/coverage/v0.1/device_ip"), false)
+        // retreive access token with coverage scope from back-end
+    val accessToken = ...
+    val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellularAndAccessToken(URL("https://eu.api.silentauth.com/coverage/v0.1/device_ip"), accessToken, false)
     if (resp.optString("error") != "") {
         println("not reachable: ${resp.optString("error_description","No error description found")}")
     } else {
@@ -112,7 +114,7 @@ val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellular(URL(endp
 ```
 
 * How to open a check URL 
-```
+```kotlin
     val resp: JSONObject? = SilentAuthSDK.getInstance().openWithDataCellular(URL(checkUrl), false)
     if (resp.optString("error") != "") {
         println("Error: ${resp.optString("error_description","No error description found")}")
