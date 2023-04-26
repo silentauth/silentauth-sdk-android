@@ -49,9 +49,8 @@ build.gradle -> dependencies add
 
 ```
     implementation 'com.silentauth.sdk:silentauth-sdk-android:x.y.z'
-    implementation 'commons-io:commons-io:2.4'
 ```
-
+See [CHANGELOG](./CHANGELOG.md) for latest version.
 ## Compatibility
 
  * **Minimum Android SDK**: SilentAuthSDK requires a minimum API level of 21 (Android 5)
