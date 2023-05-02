@@ -118,11 +118,9 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
         if (requestId != null)
             cmd.append("x-silentauth-sdk-request: ${requestId}$CRLF")
         if (operator != null) {
-            cmd.append("x-tru-ops: ${operator}$CRLF")
             cmd.append("x-silentauth-ops: ${operator}$CRLF")
         }
         if (isEmulator()) {
-            cmd.append("x-tru-mode: sandbox$CRLF")
             cmd.append("x-silentauth-mode: sandbox$CRLF")
         }
         cmd.append("Accept: text/html,application/xhtml+xml,application/xml,*/*$CRLF")
