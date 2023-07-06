@@ -142,7 +142,7 @@ class DebugInfo {
 }
 
 fun userAgent(): String {
-    return "silentAuth-sdk-android" + "/" + BuildConfig.VERSION_NAME + "/" + Build.VERSION.SDK_INT + " " + "Android" + "/" + Build.VERSION.RELEASE + " " + Build.MANUFACTURER + "/" + Build.MODEL
+    return "silentauth-sdk-android" + "/" + BuildConfig.VERSION_NAME + "/" + Build.VERSION.SDK_INT + " " + "Android" + "/" + Build.VERSION.RELEASE + " " + Build.MANUFACTURER + "/" + Build.MODEL
 }
 
 fun deviceInfo(): String {

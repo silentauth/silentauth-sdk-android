@@ -27,4 +27,5 @@ import org.json.JSONObject
 
 internal interface NetworkManager {
     fun openWithDataCellular(url: URL, accessToken: String?, debug: Boolean): JSONObject
+    fun postWithDataCellular(url: URL, headers: Map<String, String>, body: String?): JSONObject
 }

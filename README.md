@@ -90,7 +90,7 @@ val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellular(URL(endp
 * Is the device eligible for silent authentication?
 ```kotlin
     SilentAuthSDK.initializeSdk(this.applicationContext)
-        // retreive access token with coverage scope from back-end
+        // retrieve access token with coverage scope from back-end
     val accessToken = ...
     val resp: JSONObject = SilentAuthSDK.getInstance().openWithDataCellularAndAccessToken(URL("https://eu.api.silentauth.com/coverage/v0.1/device_ip"), accessToken, false)
     if (resp.optString("error") != "") {
