@@ -199,6 +199,9 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
         val CRLF = "\r\n"
         val cmd = StringBuffer()
         cmd.append("GET " + url.path)
+        if (url.path.isEmpty()) {
+            cmd.append("/")
+        }
         if (url.query != null) {
             cmd.append("?" + url.query)
         }
