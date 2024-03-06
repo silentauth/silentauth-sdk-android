@@ -3,6 +3,15 @@
 
 Change Log
 ==========
+## Version 1.0.8
+_2023-03-06_
+**Changes**
+- `send` and `post` methods updated to prevent http call requests
+- `post` method amended to prevent CRLF injections
+- `postWithDataCellular` method now deprecated and will be removed in future releases
+**Bug Fix**
+- `sendAndReceive` method updated
+
 ## Version 1.0.6
 _2023-08-14_
 **Bug Fix**

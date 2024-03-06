@@ -36,6 +36,7 @@ import java.util.UUID
 import javax.net.ssl.SSLSocketFactory
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
 
 internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollector.instance) {
     private lateinit var socket: Socket
@@ -43,6 +44,9 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
     private lateinit var input: BufferedReader
 
     fun open(url: URL, accessToken: String?, operator: String?): JSONObject {
+        if (url.protocol != "https") {
+            return convertError("invalid_scheme", "Only HTTPS URLs are allowed")
+        }
         val requestId: String = UUID.randomUUID().toString()
         var redirectURL: URL? = null
         var redirectCount = 0
@@ -100,23 +104,27 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
     }
 
     private fun makePost(url: URL, headers: Map<String, String>, body: String?): String {
+        val sanitizedUrl = URL(sanitizeInput(url.toString()))
+        val sanitizedHost = sanitizeInput(sanitizedUrl.host)
         val cmd = StringBuffer()
-        cmd.append("POST " + url.path)
+        cmd.append("POST " + sanitizedUrl.path)
         cmd.append(" HTTP/1.1$CRLF")
-        cmd.append("Host: " + url.host)
-        if (url.protocol == "https" && url.port > 0 && url.port != PORT_443) {
-            cmd.append(":" + url.port)
-        } else if (url.protocol == "http" && url.port > 0 && url.port != PORT_80) {
-            cmd.append(":" + url.port)
+        cmd.append("Host: $sanitizedHost")
+        if (sanitizedUrl.protocol == "https" && sanitizedUrl.port > 0 && sanitizedUrl.port != PORT_443) {
+            cmd.append(":" + sanitizedUrl.port)
+        } else if (sanitizedUrl.protocol == "http" && sanitizedUrl.port > 0 && sanitizedUrl.port != PORT_80) {
+            cmd.append(":" + sanitizedUrl.port)
         }
         cmd.append(CRLF)
         headers.forEach { entry ->
-            cmd.append(entry.key + ": " + entry.value + "$CRLF")
+            val sanitizedValue = sanitizeInput(entry.value)
+            cmd.append(entry.key + ": " + sanitizedValue + "$CRLF")
         }
         if (body != null) {
-            cmd.append("Content-Length: " + body.length + "$CRLF")
+            val sanitizedBody = sanitizeInput(body)
+            cmd.append("Content-Length: " + sanitizedBody.length + "$CRLF")
             cmd.append("Connection: close$CRLF$CRLF")
-            cmd.append(body)
+            cmd.append(sanitizedBody)
             cmd.append("$CRLF$CRLF")
         } else {
             cmd.append("Content-Length: 0$CRLF")
@@ -186,6 +194,9 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
     }
 
     fun post(url: URL, headers: Map<String, String>, body: String?): JSONObject {
+        if (url.protocol != "https") {
+            return convertError("invalid_scheme", "Only HTTPS URLs are allowed")
+        }
         startConnection(url)
         val request = makePost(url, headers, body)
         val response = sendAndReceive(request)
@@ -196,21 +207,23 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
         return convertError("sdk_error", "internal error")
     }
     private fun makeHTTPCommand(url: URL, accessToken: String?, operator: String?, cookies: ArrayList<HttpCookie>?, requestId: String?): String {
-        val CRLF = "\r\n"
+        val sanitizedUrlString = sanitizeInput(url.toString())
+        val sanitizedUrl = URL(sanitizedUrlString)
+        val sanitizedHost = sanitizeInput(sanitizedUrl.host)
         val cmd = StringBuffer()
-        cmd.append("GET " + url.path)
-        if (url.path.isEmpty()) {
+        cmd.append("GET " + sanitizedUrl.path)
+        if (sanitizedUrl.path.isEmpty()) {
             cmd.append("/")
         }
-        if (url.query != null) {
-            cmd.append("?" + url.query)
+        if (sanitizedUrl.query != null) {
+            cmd.append("?" + sanitizedUrl.query)
         }
         cmd.append(" HTTP/1.1$CRLF")
-        cmd.append("Host: " + url.host)
-        if (url.protocol == "https" && url.port > 0 && url.port != PORT_443) {
-            cmd.append(":" + url.port)
-        } else if (url.protocol == "http" && url.port > 0 && url.port != PORT_80) {
-            cmd.append(":" + url.port)
+        cmd.append("Host: $sanitizedHost")
+        if (sanitizedUrl.protocol == "https" && sanitizedUrl.port > 0 && sanitizedUrl.port != PORT_443) {
+            cmd.append(":" + sanitizedUrl.port)
+        } else if (sanitizedUrl.protocol == "http" && sanitizedUrl.port > 0 && sanitizedUrl.port != PORT_80) {
+            cmd.append(":" + sanitizedUrl.port)
         }
         cmd.append(CRLF)
         val userAgent = userAgent()
@@ -230,9 +243,9 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
         var cookieCount = 0
         val iterator = cookies.orEmpty().listIterator()
         for (cookie in iterator) {
-            if (((cookie.secure && url.protocol == "https") || (!cookie.secure)) &&
-                (cookie.domain == null || (cookie.domain != null && url.host.contains(cookie.domain))) &&
-                (cookie.path == null || url.path.startsWith(cookie.path))) {
+            if (((cookie.secure && sanitizedUrl.protocol == "https") || (!cookie.secure)) &&
+                (cookie.domain == null || (cookie.domain != null && sanitizedUrl.host.contains(cookie.domain))) &&
+                (cookie.path == null || sanitizedUrl.path.startsWith(cookie.path))) {
                 if (cookieCount > 0) cs.append("; ")
                 cs.append(cookie.name + "=" + cookie.value)
                 cookieCount++
@@ -242,6 +255,11 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
 
         cmd.append("Connection: close$CRLF$CRLF")
         return cmd.toString()
+    }
+
+    private fun sanitizeInput(input: String): String {
+        // Remove newline characters
+        return input.replace("\r", "").replace("\n", "")
     }
 
     private fun sendCommand(url: URL, accessToken: String?, operator: String?, cookies: ArrayList<HttpCookie>?, requestId: String?): ResultHandler? {
@@ -307,7 +325,7 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
 
         try {
             // convert the entire stream in a String
-            var response: String? = input.use { it.readText()}
+            var response: String? = readMultipleChars(input,65536)
             response?.let {
                 val lines = response.split("\n")
                 for (line in lines) {
@@ -365,6 +383,18 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
         return result
     }
 
+    @Throws(IOException::class)
+    private fun readMultipleChars(reader: BufferedReader, length: Int): String? {
+        val chars = CharArray(length)
+        val charsRead = reader.read(chars, 0, length)
+        val result: String = if (charsRead != -1) {
+            String(chars, 0, charsRead)
+        } else {
+            ""
+        }
+        return result
+    }
+    
     fun parseBodyIntoJSONString(body: String?): String? {
         if (body != null) {
             val start = body.indexOf("{")
