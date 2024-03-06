@@ -195,7 +195,7 @@ internal class ClientSocket constructor(var tracer: TraceCollector = TraceCollec
 
     fun post(url: URL, headers: Map<String, String>, body: String?): JSONObject {
         if (url.protocol != "https") {
-            return convertError("invalid scheme", "Only HTTPS URLs are allowed")
+            return convertError("invalid_scheme", "Only HTTPS URLs are allowed")
         }
         startConnection(url)
         val request = makePost(url, headers, body)
