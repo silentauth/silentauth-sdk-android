@@ -11,6 +11,7 @@ _2023-07-05_
 - gradlePluginVersion updated to 8.4.2
 - gradleVersion updated to 8.6
 - JavaVersion updated to 17
+- Previously deprecated `postWithDataCellular` method and relevant testing removed
 
 ## Version 1.0.8
 _2023-03-06_
