@@ -55,11 +55,7 @@ See [CHANGELOG](./CHANGELOG.md) for latest version.
 
  * **Minimum Android SDK**: SilentAuthSDK requires a minimum API level of 21 (Android 5)
  * **Compile Android SDK**: SilentAuthSDK requires you to compile against API 31  (Android 12) or later.
- * **Important Note**: When you increase your `buildToolsVersion` to `31.0.0` within your project, your IDE might be throwing an error:
-    ```
-    Installed Build Tools revision 31.0.0 is corrupted. Remove and install again using the SDK Manager.
-    ```
-   You can follow the steps on [here](https://ourcodeworld.com/articles/read/1591/how-to-solve-android-studio-error-installed-build-tools-revision-3100-is-corrupted-remove-and-install-again-using-the-sdk-manager) to resolve.
+ * **Java Version**: TruSDK is compatible with Java 11. Ensure your `compileOptions` and `kotlinOptions` in `build.gradle` are set to use Java 11
 
 ## Size
 
